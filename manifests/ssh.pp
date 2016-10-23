@@ -35,30 +35,38 @@
 #
 # Copyright 2016 Matthew Hansen
 #
-define users::ssh ($user = $title) {
+define users::ssh (
+  $user = $title,
+  $private_key_source = "puppet:///modules/ssh/$user",
+  $private_key_name = "id_rsa",
+  $public_key_source = "puppet:///modules/ssh/$user",
+  $public_key_name = "id_rsa.pub",
+) {
 
-  file { "$user/id_rsa":
+  # copy private key
+  file { "$user/$private_key_name":
     ensure  => file,
     owner   => $user,
     group   => $user,
     mode    => '0600',
-    path    => "/home/$user/.ssh/id_rsa",
-    source  => "puppet:///modules/ssh/$user/id_rsa",
+    path    => "/home/$user/.ssh/$private_key_name",
+    source  => $id_rsa_source,
   }
 
-  file { "$user/id_rsa.pub":
+  # copy public key
+  file { "$user/$public_key_name":
     ensure  => file,
     owner   => $user,
     group   => $user,
     mode    => '0600',
-    path    => "/home/$user/.ssh/id_rsa.pub",
-    source  => "puppet:///modules/ssh/$user/id_rsa.pub",
+    path    => "/home/$user/.ssh/$public_key_name",
+    source  => "puppet:///modules/ssh/$user/$public_key_name",
   }
 
   # add public key to authorized_keys
   exec { "$user/authorized_keys":
-    command  => "cat /home/$user/.ssh/id_rsa.pub >> /home/$user/.ssh/authorized_keys",
-    require  => File["$user/id_rsa.pub"],
+    command  => "cat /home/$user/.ssh/$public_key_name >> /home/$user/.ssh/authorized_keys",
+    require  => File["$user/$public_key_name"],
     notify   => Service["sshd"]
   }
 
