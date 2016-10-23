@@ -1,5 +1,13 @@
 # users
 
+example:
+```
+users { "${defaultUser}": db_password => $dbPassword }
+```
+
+requires `ssh` module
+
+
 #### Table of Contents
 
 1. [Overview](#overview)

@@ -23,19 +23,30 @@
 #
 # === Examples
 #
-#  class { 'users':
-#    servers => [ 'pool.ntp.org', 'ntp.local.company.com' ],
-#  }
+# users { "${defaultUser}": db_password => $dbPassword }
 #
 # === Authors
 #
-# Author Name <author@domain.com>
+# Matthew Hansen
 #
 # === Copyright
 #
-# Copyright 2016 Your name here, unless otherwise noted.
+# Copyright 2016 Matthew Hansen
 #
-class users {
+define users(
+  $user = $title,
+  $db_password = '',
+) {
 
 
+  user { $user:
+    ensure  => 'present',
+    groups  => ['sudo'],
+    home    => "/home/$user",
+    shell   => '/bin/bash',
+    managehome => 'true',
+  }
+
+  # setup home files
+  users::home { $user: db_password => $dbPassword }
 }
